@@ -154,7 +154,7 @@ ContactMsg="There seems to have been an error installing the updates. You can tr
 If the error persists, please contact $ITContact."
 
 # Message to display when computer is running off battery
-NoACPower="The computer is currently running off battery and is not plugged into a power source."
+NoACPower="The computer is not plugged into a power source. Please plug it into a power source and to continue the OS updates"
 
 # Standard Update Message
 StandardUpdatePrompt="There is a software update available for your Mac that requires a restart. Please click Continue to proceed to Software Update to run this update. If you are unable to start the process at this time, you may choose to postpone by one day.
@@ -196,9 +196,10 @@ powerCheck() {
     # This is meant to be used when doing CLI update installs.
     # Updates through the GUI can already determine its own requirements to proceed with
     # the update process.
-    # Let's wait 5 minutes to see if computer gets plugged into power.
-    for (( i = 1; i <= 5; ++i )); do
-        if [[ "$(/usr/bin/pmset -g ps | /usr/bin/grep "Battery Power")" = "Now drawing from 'Battery Power'" ]] && [[ $i = 5 ]]; then
+    # Let's wait 30 minutes to see if computer gets plugged into power.
+    for (( i = 1; i <= 30; ++i )); do
+        if [[ "$(/usr/bin/pmset -g ps | /usr/bin/grep "Battery Power")" = "Now drawing from 'Battery Power'" ]] && [[ $i = 2 ]]; then
+           "$jamfHelper" -windowType utility -icon "$AppleSUIcon" -title "Connect to Power Source" -description "$NoACPower" -button1 "connected" &
             echo "$NoACPower"
         elif [[ "$(/usr/bin/pmset -g ps | /usr/bin/grep "Battery Power")" = "Now drawing from 'Battery Power'" ]]; then
             /bin/sleep 60
