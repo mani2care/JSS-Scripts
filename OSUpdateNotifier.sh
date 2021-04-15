@@ -168,7 +168,8 @@ else
     addMajorUpgradeText="update"
     if [[ "$OSMajorVersion" -ge 11 ]] || [[ "$OSMajorVersion" -eq 10 && "$OSMinorVersion" -ge 14 ]]; then
         #SUGuide="by clicking on the Apple menu, clicking System Preferences and clicking Software Update to install any available updates."
-        StepsToUpgrade=" > System Preferences > Software Update"
+        StepsToUpgrade=" > System Preferences > Software Update
+        $UpdatesReqRestart"
     else
         #SUGuide="by opening up the App Store located in the Applications folder and clicking on the Updates tab to install any available updates."
         StepsToUpgrade=" > App Store > Updates tab"
@@ -308,6 +309,20 @@ readPlistValue(){
     
     return 1
 }
+getUpdates()
+{
+
+if [ -e /tmp/softwareupdates.txt ]
+then
+rm /tmp/softwareupdates.txt
+fi
+
+/usr/sbin/softwareupdate --list >> /tmp/softwareupdates.txt
+
+UpdatesReqRestart=$(cat /tmp/softwareupdates.txt | egrep 'restart|shutdown' | awk -F ',|\\\(' '{ gsub(/Title:/,""); print$1 }')
+}
+
+getUpdates
 
 checkParam (){
 if [[ -z "$1" ]]; then
